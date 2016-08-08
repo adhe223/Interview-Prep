@@ -1,0 +1,94 @@
+15.1
+SELECT Tenants.TenantID, COUNT(AptTenants.TenantID) As NumApts
+FROM AptTenants, Tenants
+WHERE Tenants.TenantID = AptTenants.TenantID
+GROUP BY Tenants.TenantID
+HAVING COUNT(AptTenants.TenantID) > 1
+
+15.2
+SELECT Buildings.BuildingID, Count
+FROM Buildings
+LEFT JOIN
+	(SELECT Apartments.AptID, Apartments.BuildingID, Count(*) As 'Count'
+	FROM Requests, Apartments
+	WHERE Apartments.AptID = Requests.AptID AND Requests.Status = "open"
+	GROUP BY Apartments.AptID) A
+ON Buildings.BuildingID = A.BuildingID
+
+15.3
+UPDATE Requests
+SET Status = 'Closed'
+WHERE AptID IN
+	(SELECT AptID
+	FROM Apartments
+	WHERE BuildingID = 11)
+	
+15.7
+SELECT TOP 10 PERCENT AVG(Enrollment.Grade) As GPA, Enrollment.StudentID
+FROM Enrollment
+GROUP BY Enrollment.StudentID
+ORDER BY AVG(Enrollment.Grade)
+
+
+
+
+http://sqlfiddle.com/#!9/e4a0e6/1
+CREATE TABLE Apartments
+	(`AptID` int, `UnitNumber` varchar(5), `BuildingID` int)
+;
+
+CREATE TABLE Tenants
+	(`TenantID` int, `TenantName` varchar(50))
+;
+
+CREATE TABLE AptTenants
+	(`TenantID` int, `AptID` int)
+;
+
+CREATE TABLE Requests
+	(`RequestID` int, `Status` varchar(15), `AptID` int)gjh
+;
+
+CREATE TABLE Buildings
+	(`BuildingID` int)
+;
+
+INSERT INTO Apartments
+	(`AptID`, `UnitNumber`, `BuildingID`)
+VALUES
+	(1, 'One', 1),
+	(2, 'Two', 1),
+	(3, 'Three', 2)
+;
+
+INSERT INTO Tenants
+	(`TenantID`, `TenantName`)
+VALUES
+	(1, 'Alex'),
+	(2, 'Gabe'),
+	(3, 'Miles')
+;
+
+INSERT INTO AptTenants
+	(`TenantID`, `AptID`)
+VALUES
+	(1, 1),
+	(1, 2),
+	(3, 3)
+;
+
+INSERT INTO Requests
+	(`RequestID`, `Status`, `AptID`)
+VALUES
+	(1, 'open', 1),
+	(2, 'open', 1),
+	(3, 'open', 3)
+;
+
+INSERT INTO Buildings
+	(`BuildingID`)
+VALUES
+	(1),
+	(2),
+	(3)
+;
